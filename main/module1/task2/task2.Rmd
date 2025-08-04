@@ -6,11 +6,37 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(kableExtra)
+library(readr)
 library(dplyr)
 library(lubridate)
 ```
 
 ```{r}
+DATASET2 <- read_csv("DATASET2.csv")
+#View(DATASET2)
+
+# Check how many NA values exist per variable
+DATASET2 %>% summarise_all(~sum(is.na(.)))
+
+
+install.packages("VIM")  # Only once
+install.packages("DEoptimR")
+
+library(VIM)
+
+# Visualize missing data as a bar and pattern
+aggr(DATASET2, col = c("navyblue", "red"), numbers = TRUE, sortVars = TRUE,
+     labels = names(DATASET2), cex.axis = .7, gap = 3, 
+     ylab = c("Missing data", "Pattern"))
+
+
+# Check correlations between variables
+install.packages("GGally")
+library(GGally)
+
+# Correlation matrix (numerical vars only)
+ggcorr(DATASET2, label = TRUE, label_round = 2, label_size = 3, 
+       hjust = 0.75, layout.exp = 1)
 
 ```
 
