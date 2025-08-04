@@ -6,3 +6,15 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+
+```{r}
+cutpoint.Youden <- optimal.cutpoints( x = "psa", status = "metastasis", tag.healthy = 0, methods = "Youden", data = data, pop.prev = NULL, control = control.cutpoints(), ci.fit = FALSE, conf.level = 0.95, trace = FALSE) 
+
+
+summary(cutpoint.Youden) 
+
+
+plot(cutpoint.Youden)
+```
+
