@@ -2,7 +2,7 @@
 title: "task1"
 author: "Anton Sandbye"
 date: "`r Sys.Date()`"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -29,7 +29,7 @@ print_table <- function(data, title) {
 ```
 
 ```{r}
-mydata <- read.csv("task1/DATASET1.csv")
+mydata <- read.csv("DATASET1.csv")
 ```
 
 ```{r}
