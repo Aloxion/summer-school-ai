@@ -11,3 +11,11 @@
 
 # Run Jupyter Notebook
 - Do `jupyter notebook`
+
+
+# Run RStudio
+- Do `bash run-rstudio.sh module1`
+or
+- Do `./run-rstudio.sh module1`
+Make sure to chmod it if it doesnt work
+- `chmod +x run-rstudio.sh`
