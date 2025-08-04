@@ -90,9 +90,10 @@ print_table(age_prostate_cancer, "Age Prostate Cancer")
 age_metastasis <- data %>%
   filter(metastasis == 1) %>%
   summarise(
-    Mean = mean(age_at_metastasis_diagnosis),
-    SD = sd(age_at_metastasis_diagnosis)
+    Mean = mean(age_at_metastasis_diagnosis, na.rm = TRUE),
+    SD = sd(age_at_metastasis_diagnosis, na.rm = TRUE)
   )
+
 
 print_table(age_metastasis, "Age Metastatis diagnosed")
 ```
@@ -182,6 +183,9 @@ summary_df <- data.frame(
   )
 )
 print_table(summary_df, "Final Results")
+ncol(mydata)
+write_csv(mydata, "task1_result.csv")
+
 ```
 
 

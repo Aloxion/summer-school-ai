@@ -1,0 +1,321 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+Shortcuts:
+*Run*:  *Ctrl+Shift+Enter*. 
+Add a new chunk: *Ctrl+Alt+I*.
+*Ctrl+Shift+K* to preview the HTML file
+
+
+# Load required packages
+```{r}
+install.packages("dplyr")      # Only needed once
+install.packages("lubridate")
+install.packages("psych")
+
+
+library(readr)
+library(dplyr)
+library(lubridate)
+library(psych)
+```
+
+
+
+```{r}
+mydata <- read.csv("task1/DATASET1.csv")
+```
+
+```{r}
+# Gives statistical summaries for each column
+summary(mydata)
+```
+
+```{r}
+# Shows types and structure of variables
+str(mydata)
+```
+
+
+```{r}
+# Lists all variable names
+names(mydata)
+```
+
+# Check for missing data in each column
+```{r}
+mydata %>% summarise_all(~sum(is.na(.)))
+```
+
+```{r}
+# Convert variable types to appropriate format
+mydata$metastasis <- as.factor(mydata$metastasis)
+mydata$cancer_family <- as.factor(mydata$cancer_family)
+mydata$civil_status <- as.factor(mydata$civil_status)
+mydata$prostdtfirst <- as.Date(mydata$prostdtfirst)
+mydata$date_met <- as.Date(mydata$date_met)
+mydata$birthdate <- as.Date(mydata$birthdate)
+```
+
+```{r}
+# Check a few rows of each column
+head(mydata[, c("birthdate", "prostdtfirst", "date_met")])
+str(mydata$birthdate)
+str(mydata$prostdtfirst)
+str(mydata$date_met)
+
+```
+
+# Exercise 1.3
+# With information available in DATASET 1, make a summary table describing the study population, e.g.:
+```{r}
+print("Age of patients at diagnosis of prostate cancer (mean and standard deviation)")
+# Age at prostate cancer diagnosis (everyone)
+mydata$age_pc_diag <- as.numeric(format(mydata$prostdtfirst, "%Y")) - as.numeric(format(mydata$birthdate, "%Y"))
+
+print("Age of patients at diagnosis of metastasis (for those that metastasis = 1)")
+
+# Age at metastasis (only for those who have a date)
+mydata$age_met <- ifelse(!is.na(mydata$date_met),
+                         as.numeric(format(mydata$date_met, "%Y")) - as.numeric(format(mydata$birthdate, "%Y")),
+                         NA)
+
+# More precise age calculations
+mydata$age_pc_diag <- time_length(interval(mydata$birthdate, mydata$prostdtfirst), "years")
+mydata$age_met <- ifelse(!is.na(mydata$date_met),
+                         time_length(interval(mydata$birthdate, mydata$date_met), "years"),
+                         NA)
+
+# Summary stats
+describe(mydata$age_pc_diag)
+describe(mydata$age_met[mydata$metastasis == 1])
+
+summary(mydata$age_pc_diag)
+summary(mydata$age_met)
+
+
+print("Percentage of patients with and without metastasis")
+table(mydata$metastasis)
+prop.table(table(mydata$metastasis)) * 100
+
+print("Previous cancer in the family. 
+      1 = Patient reported at least one case of aggressive cancer in the family; 
+      0 = no aggressive cancer in the family ")
+table(mydata$cancer_family)
+prop.table(table(mydata$cancer_family)) * 100
+
+print("Civil status • 1 = Married/cohabiting; 2 = Single/divorced/widow")
+table(mydata$civil_status)
+prop.table(table(mydata$civil_status)) * 100
+
+
+```
+
+
+```{r}
+# Quantitative variables
+age_pc_stats <- describe(mydata$age_pc_diag)
+age_met_stats <- describe(mydata$age_met[mydata$metastasis == 1])
+
+# Categorical variables
+metastasis_tbl <- table(mydata$metastasis)
+metastasis_pct <- prop.table(metastasis_tbl) * 100
+
+cancer_family_tbl <- table(mydata$cancer_family)
+cancer_family_pct <- prop.table(cancer_family_tbl) * 100
+
+civil_status_tbl <- table(mydata$civil_status)
+civil_status_pct <- prop.table(civil_status_tbl) * 100
+
+
+# Combine into a table
+summary_table <- data.frame(
+  Characteristic = c(
+    "Age at PC diagnosis (Mean ± SD)",
+    "Age at time of metastasis (Mean ± SD)",
+    "Metastasis = 1 (Yes)",
+    "Metastasis = 0 (No)",
+    "Family history of cancer = 1 (Yes)",
+    "Family history of cancer = 0 (No)",
+    "Civil status = 1 (Married/cohabiting)",
+    "Civil status = 2 (Single/divorced/widow)"
+  ),
+  Value = c(
+    sprintf("%.2f ± %.2f", age_pc_stats$mean, age_pc_stats$sd),
+    sprintf("%.2f ± %.2f", age_met_stats$mean, age_met_stats$sd),
+    sprintf("%d (%.2f%%)", metastasis_tbl["1"], metastasis_pct["1"]),
+    sprintf("%d (%.2f%%)", metastasis_tbl["0"], metastasis_pct["0"]),
+    sprintf("%d (%.2f%%)", cancer_family_tbl["1"], cancer_family_pct["1"]),
+    sprintf("%d (%.2f%%)", cancer_family_tbl["0"], cancer_family_pct["0"]),
+    sprintf("%d (%.2f%%)", civil_status_tbl["1"], civil_status_pct["1"]),
+    sprintf("%d (%.2f%%)", civil_status_tbl["2"], civil_status_pct["2"])
+  )
+)
+
+print(summary_table, row.names = FALSE)
+
+ncol(mydata)
+names(mydata)
+
+```
+
+# ------------------ DATASET 2 ------------------ 
+# Task 2
+# Inspecting biochemical data
+
+```{r}
+library(readr)
+DATASET2 <- read_csv("task2/DATASET2.csv")
+#View(DATASET2)
+
+# Check how many NA values exist per variable
+DATASET2 %>% summarise_all(~sum(is.na(.)))
+
+
+install.packages("VIM")  # Only once
+install.packages("DEoptimR")
+
+library(VIM)
+
+# Visualize missing data as a bar and pattern
+aggr(DATASET2, col = c("navyblue", "red"), numbers = TRUE, sortVars = TRUE,
+     labels = names(DATASET2), cex.axis = .7, gap = 3, 
+     ylab = c("Missing data", "Pattern"))
+
+
+# Check correlations between variables
+install.packages("GGally")
+library(GGally)
+
+# Correlation matrix (numerical vars only)
+ggcorr(DATASET2, label = TRUE, label_round = 2, label_size = 3, 
+       hjust = 0.75, layout.exp = 1)
+
+
+```
+
+
+# ------------------ DATASET 3 ------------------ 
+# Task 3
+# Inspecting biochemical data
+
+```{r}
+# Objective: Map diagnosis codes to diseases and convert them into binary features per patient
+
+library(readr)
+library(dplyr)
+library(tidyr)
+
+# Read the third dataset (diagnostic codes)
+DATASET3 <- read_csv("task3/DATASET3.csv")
+
+# Inspect the distinct diagnosis codes
+summary(as.factor(DATASET3$code))
+
+# You can look up each code manually at https://medinfo.dk/sks/brows.php
+# and use that info to map codes to disease names.
+
+# Example: Mapping diagnosis codes to disease labels
+# (Replace "XXX", "YYY", etc. with real codes from your data)
+DATASET3_mapped <- DATASET3 %>%
+  mutate(disease = case_when(
+    code == "DE119" ~ "Type_2_Diabetes",
+    code == "DM819" ~ "Osteoporosis",
+    code == "DI109" ~ "Hypertension",
+    code == "DR339" ~ "Sleep_Disorder",
+    code == "DE780" ~ "Hyperlipidemia",
+    code == "DH911" ~ "UTI",  # Confirm if this is really UTI
+    TRUE ~ "Other"
+  ))
+
+# View how many of each disease we now have
+table(DATASET3_mapped$disease)
+
+# Create a binary variable for each disease: 1 if diagnosis exists, 0 otherwise
+# We start by creating a helper column called 'diag' with value 1
+df_diag <- DATASET3_mapped %>%
+  mutate(diag = 1) %>%
+  select(ID, disease, diag)
+
+# Ensure only one unique row per ID-disease pair
+df_diag_clean <- df_diag %>%
+  distinct(ID, disease, .keep_all = TRUE)
+
+# Now spread into wide format
+df_diag_wide <- spread(df_diag_clean, key = disease, value = diag)
+
+# Replace NAs with 0 to indicate no diagnosis
+df_diag_wide[is.na(df_diag_wide)] <- 0
+
+# Check structure and first few rows
+str(df_diag_wide)
+head(df_diag_wide)
+
+# Check mapping worked
+table(DATASET3_mapped$disease)
+
+# This resulting dataframe can later be merged with DATASET1 and DATASET2 in Task 4
+
+```
+
+# ------------------ Task 4 ------------------ 
+# Merge datasets and handle missing data
+
+```{r}
+
+# Rename datasets for clarity
+clinical_data <- mydata             # DATASET 1
+biochem_data <- DATASET2            # DATASET 2
+diagnosis_data <- df_diag_wide      # Cleaned DATASET 3
+
+# Merge clinical and biochemical data (inner join on ID)
+merged1 <- merge(clinical_data, biochem_data, by = "ID", all = TRUE)  # Use all=TRUE to keep all patients
+
+ncol(clinical_data)
+ncol(biochem_data)
+ncol(diagnosis_data)
+
+ncol(merged1)
+
+# Merge with diagnosis data
+merged_all <- merge(merged1, diagnosis_data, by = "ID", all = TRUE)
+# Replace NAs in diagnosis columns (columns 20 to 25) with 0
+merged_all[, 20:25][is.na(merged_all[, 20:25])] <- 0
+colSums(is.na(merged_all))
+
+
+# Check merged result
+dim(merged_all)
+summary(merged_all)
+
+# ---------------------------------------------
+# Step 2: Impute missing values (e.g., with mean)
+# ---------------------------------------------
+
+# Example: Impute missing values in biochemical columns with the mean
+# You can select specific columns or apply to all numeric ones
+
+# Find numeric columns
+numeric_cols <- sapply(merged_all, is.numeric)
+
+# Impute missing values with column mean (safe for numeric only)
+merged_all[, numeric_cols] <- lapply(merged_all[, numeric_cols], function(x) {
+  ifelse(is.na(x), mean(x, na.rm = TRUE), x)
+})
+
+# ---------------------------------------------
+# Step 3: Double-check for remaining missing values
+# ---------------------------------------------
+colSums(is.na(merged_all))
+
+# see merged_all for the merged output for Task 4: 
+# View(merged_all)
+```
+
+
+
+
+

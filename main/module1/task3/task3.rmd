@@ -56,4 +56,6 @@ head(df_diag_wide)
 
 # Check mapping worked
 table(DATASET3_mapped$disease)
+
+write_csv(df_diag_wide, "task3_result.csv")
 ```
