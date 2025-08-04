@@ -1,0 +1,189 @@
+---
+title: "task1"
+author: "Anton Sandbye"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("dplyr")
+#install.packages("lubridate")
+#install.packages("kableExtra")
+library(kableExtra)
+library(dplyr)
+library(lubridate)
+
+print_table <- function(data, title) {
+  
+  # Check if the input is a data frame
+  if (!is.data.frame(data)) {
+    stop("Input 'data' must be a data frame.")
+  }
+  
+  # Print the table using kbl() with the provided title
+  kbl(data, 
+             caption = title,
+             format = "simple") # 'simple' is best for console output
+}
+```
+
+```{r}
+mydata <- read.csv("task1/DATASET1.csv")
+```
+
+```{r}
+names(mydata)
+summary(mydata)
+str(mydata)
+```
+
+## Are the variables correctly recognized by the software (e.g. are categorical variables recognized as categorical, and numerical variables recognized as numerical)?
+
+No, they are not set correctly dates are in chr type and not correct data type
+
+```{r}
+data = mydata %>% mutate(
+  prostdtfirst = ymd(prostdtfirst),
+  date_met = ymd(date_met),
+  birthdate = ymd(birthdate)
+)
+```
+
+
+* Do we have any missing data?
+
+Yes, there is missing data for date_met in several rows.
+
+
+```{r}
+data %>% summarise_all(funs(sum(is.na(.))))
+```
+
+## With information available in DATASET 1, make a summary table describing the study population, e.g.:
+
+First, we create two neew environemnt variables, to calculate the age of the patient with that diagnosis.
+```{r}
+data <- data %>%
+  mutate(
+    age_at_prostate_cancer_diagnosis = (prostdtfirst - birthdate) / dyears(1),
+    age_at_metastasis_diagnosis = (date_met - birthdate) / dyears(1)
+  )
+```
+
+
+* Age of patients at diagnosis of prostate cancer (mean and standard deviation) 
+
+```{r}
+age_prostate_cancer <- data %>%
+  summarise(
+    Mean = mean(age_at_prostate_cancer_diagnosis, na.rm = TRUE),
+    SD = sd(age_at_prostate_cancer_diagnosis, na.rm = TRUE)
+  )
+
+print_table(age_prostate_cancer, "Age Prostate Cancer")
+```
+
+* Age of patients at diagnosis of metastasis (for those that metastasis = 1) 
+
+```{r}
+age_metastasis <- data %>%
+  filter(metastasis == 1) %>%
+  summarise(
+    Mean = mean(age_at_metastasis_diagnosis),
+    SD = sd(age_at_metastasis_diagnosis)
+  )
+
+print_table(age_metastasis, "Age Metastatis diagnosed")
+```
+* Percentage of patients with and without metastasis 
+```{r}
+metastasis_percentage <- mydata %>%
+  # Use na.rm = FALSE to count NA values as well
+  count(metastasis, .drop = FALSE) %>%
+  mutate(
+    percentage = n / sum(n) * 100,
+    status = case_when(
+      metastasis == 1 ~ "With metastasis",
+      metastasis == 0 ~ "Without metastasis",
+      is.na(metastasis) ~ "Missing",
+      TRUE ~ "Other" # Catches any other value
+    )
+  )
+
+print_table(metastasis_percentage, "Metastasis Percentages")
+```
+* Previous cancer in the family 
+0 being no aggressive cancer in family
+1 being that patient reported at least on case of aggressive cancer in family
+```{r}
+  cancer_family_percentage <- data %>%
+    count(cancer_family) %>%
+    mutate(
+      percentage = n / sum(n) * 100,
+      status = case_when(
+        cancer_family == 1 ~ "Aggressive cancer in family",
+        cancer_family == 0 ~ "No aggressive cancer in family",
+        TRUE ~ "Other"
+      )
+    )
+print_table(cancer_family_percentage, "Cancer Family Percentage")
+```
+* Civil status
+
+Civil status 1 meaning married/cohabiting
+Civil status 2 meaning single/divorced/widow
+```{r}
+  civil_status_percentage <- data %>%
+    count(civil_status) %>%
+    mutate(
+      percentage = n / sum(n) * 100,
+      status = case_when(
+        civil_status == 1 ~ "Married/cohabiting",
+        civil_status == 2 ~ "Single/divorced/widow",
+        TRUE ~ paste("Civil Status:", civil_status)
+      )
+    )
+print_table(civil_status_percentage, "Civil Status Percentage")
+```
+
+```{r}
+# This helper function safely gets a percentage, returning "-" if the category is not found.
+safe_get_value <- function(df, status_string) {
+  if (status_string %in% df$status) {
+    return(paste0(round(df$percentage[df$status == status_string], 2), "%"))
+  } else {
+    return("-") 
+  }
+}
+
+summary_df <- data.frame(
+  Characteristic = c(
+    "Age at Prostate Cancer Diagnosis (years)",
+    "Age at Metastasis Diagnosis (years)",
+    "Patients with Metastasis (%)",
+    "Patients without Metastasis (%)",
+    "Aggressive Cancer in Family (%)",
+    "No Aggressive Cancer in Family (%)",
+    "Married/Cohabiting (%)",
+    "Single/Divorced/Widow (%)"
+  ),
+  Value = c(
+    # These two are safe because they always return a single value
+    paste0(round(age_prostate_cancer$Mean, 2), " (SD: ", round(age_prostate_cancer$SD, 2), ")"),
+    paste0(round(age_metastasis$Mean, 2), " (SD: ", round(age_metastasis$SD, 2), ")"),
+    # Now use the helper function for all the percentages
+    safe_get_value(metastasis_percentage, "With metastasis"),
+    safe_get_value(metastasis_percentage, "Without metastasis"),
+    safe_get_value(cancer_family_percentage, "Aggressive cancer in family"),
+    safe_get_value(cancer_family_percentage, "No aggressive cancer in family"),
+    safe_get_value(civil_status_percentage, "Married/cohabiting"),
+    safe_get_value(civil_status_percentage, "Single/divorced/widow")
+  )
+)
+print_table(summary_df, "Final Results")
+```
+
+
+
+
