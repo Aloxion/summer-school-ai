@@ -30,7 +30,9 @@ PROJECT_FILE=$(ls | grep '\.Rproj$' | head -n 1)
 
 if [ -z "$PROJECT_FILE" ]; then
     echo "No .Rproj file found in the '$TARGET_MODULE' directory."
-    exit 1
+    echo "Opening directory instead... $(pwd)"
+    rstudio "$(pwd)" &
+    exit 0
 fi
 
 echo "Opening project: $PROJECT_FILE from '$TARGET_MODULE'..."
