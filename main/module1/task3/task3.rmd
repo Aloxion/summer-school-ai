@@ -1,0 +1,59 @@
+---
+title: "task3"
+output: html_document
+date: "2025-08-04"
+---
+
+```{r pressure, echo=FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+
+# Read the third dataset (diagnostic codes)
+DATASET3 <- read_csv("DATASET3.csv")
+
+# Inspect the distinct diagnosis codes
+summary(as.factor(DATASET3$code))
+
+# You can look up each code manually at https://medinfo.dk/sks/brows.php
+# and use that info to map codes to disease names.
+
+# Example: Mapping diagnosis codes to disease labels
+# (Replace "XXX", "YYY", etc. with real codes from your data)
+DATASET3_mapped <- DATASET3 %>%
+  mutate(disease = case_when(
+    code == "DE119" ~ "Type_2_Diabetes",
+    code == "DM819" ~ "Osteoporosis",
+    code == "DI109" ~ "Hypertension",
+    code == "DR339" ~ "Sleep_Disorder",
+    code == "DE780" ~ "Hyperlipidemia",
+    code == "DH911" ~ "UTI",  # Confirm if this is really UTI
+    TRUE ~ "Other"
+  ))
+
+# View how many of each disease we now have
+table(DATASET3_mapped$disease)
+
+# Create a binary variable for each disease: 1 if diagnosis exists, 0 otherwise
+# We start by creating a helper column called 'diag' with value 1
+df_diag <- DATASET3_mapped %>%
+  mutate(diag = 1) %>%
+  select(ID, disease, diag)
+
+# Ensure only one unique row per ID-disease pair
+df_diag_clean <- df_diag %>%
+  distinct(ID, disease, .keep_all = TRUE)
+
+# Now spread into wide format
+df_diag_wide <- spread(df_diag_clean, key = disease, value = diag)
+
+# Replace NAs with 0 to indicate no diagnosis
+df_diag_wide[is.na(df_diag_wide)] <- 0
+
+# Check structure and first few rows
+str(df_diag_wide)
+head(df_diag_wide)
+
+# Check mapping worked
+table(DATASET3_mapped$disease)
+```
