@@ -12,7 +12,7 @@ library(lubridate)
 ```
 
 ```{r}
-DATASET2 <- read_csv("DATASET2.csv")
+DATASET2 <- read_csv("../../DATASET2.csv")
 #View(DATASET2)
 
 # Check how many NA values exist per variable

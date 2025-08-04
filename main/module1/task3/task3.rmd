@@ -10,7 +10,7 @@ library(dplyr)
 library(tidyr)
 
 # Read the third dataset (diagnostic codes)
-DATASET3 <- read_csv("DATASET3.csv")
+DATASET3 <- read_csv("../../DATASET3.csv")
 
 # Inspect the distinct diagnosis codes
 summary(as.factor(DATASET3$code))

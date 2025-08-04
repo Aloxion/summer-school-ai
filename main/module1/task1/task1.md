@@ -4,7 +4,7 @@ Anton Sandbye
 2025-08-04
 
 ``` r
-mydata <- read.csv("DATASET1.csv")
+mydata <- read.csv("../../DATASET1.csv")
 ```
 
 ``` r

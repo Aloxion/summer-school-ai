@@ -15,7 +15,6 @@ clinical_data <- read_csv("../task1/task1_result.csv") # DATASET 1
 biochem_data <- read_csv("../task2/DATASET2.csv")            # DATASET 2
 diagnosis_data <- read_csv("../task3/task3_result.csv")      # Cleaned DATASET 3
 
-
 # Merge clinical and biochemical data (inner join on ID)
 merged1 <- merge(clinical_data, biochem_data, by = "ID", all = TRUE)  # Use all=TRUE to keep all patients
 

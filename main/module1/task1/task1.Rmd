@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(kableExtra)
 library(dplyr)
 library(lubridate)
-
+library(readr)
 print_table <- function(data, title) {
   
   # Check if the input is a data frame
@@ -29,7 +29,7 @@ print_table <- function(data, title) {
 ```
 
 ```{r}
-mydata <- read.csv("DATASET1.csv")
+mydata <- read.csv("../../DATASET1.csv")
 ```
 
 ```{r}
@@ -183,8 +183,8 @@ summary_df <- data.frame(
   )
 )
 print_table(summary_df, "Final Results")
-ncol(mydata)
-write_csv(mydata, "task1_result.csv")
+ncol(data)
+write_csv(data, "task1_result.csv")
 
 ```
 
