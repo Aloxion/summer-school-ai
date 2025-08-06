@@ -395,7 +395,7 @@ clinical_data &lt;- read_csv(&quot;../task1/task1_result.csv&quot;) # DATASET 1<
 <pre><code>## Rows: 766 Columns: 7
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
-## dbl (7): ID, Hyperlipidemia, Hypertension, Osteoporosis, Sleep_Disorder, Typ...
+## dbl (7): ID, Hearing_Loss, Hyperlipidemia, Hypertension, Osteoporosis, Type_...
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
@@ -433,13 +433,13 @@ colSums(is.na(merged_all))</code></pre>
 ##                               68                               93 
 ##                         globulin                              psa 
 ##                                3                                0 
-##                      coag_factor                   Hyperlipidemia 
+##                      coag_factor                     Hearing_Loss 
 ##                               28                                0 
-##                     Hypertension                     Osteoporosis 
+##                   Hyperlipidemia                     Hypertension 
 ##                                0                                0 
-##                   Sleep_Disorder                  Type_2_Diabetes 
+##                     Osteoporosis                  Type_2_Diabetes 
 ##                                0                                0 
-##                              UTI 
+##                         Urin_ret 
 ##                                0</code></pre>
 <pre class="r"><code># Check merged result
 dim(merged_all)</code></pre>
@@ -485,20 +485,20 @@ dim(merged_all)</code></pre>
 ##  3rd Qu.:   9.125   3rd Qu.:0.3400   3rd Qu.: 6.68   3rd Qu.:   63.00  
 ##  Max.   :1585.030   Max.   :7.2000   Max.   :49.40   Max.   :11040.00  
 ##  NA&#39;s   :68         NA&#39;s   :93       NA&#39;s   :3                         
-##   coag_factor     Hyperlipidemia    Hypertension     Osteoporosis   
+##   coag_factor      Hearing_Loss    Hyperlipidemia    Hypertension   
 ##  Min.   : 0.000   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
 ##  1st Qu.: 2.375   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000  
 ##  Median : 5.880   Median :0.0000   Median :0.0000   Median :0.0000  
-##  Mean   : 8.875   Mean   :0.1225   Mean   :0.1493   Mean   :0.2261  
+##  Mean   : 8.875   Mean   :0.1562   Mean   :0.1225   Mean   :0.1493  
 ##  3rd Qu.:11.370   3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:0.0000  
 ##  Max.   :88.260   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
 ##  NA&#39;s   :28                                                         
-##  Sleep_Disorder   Type_2_Diabetes       UTI        
+##   Osteoporosis    Type_2_Diabetes     Urin_ret     
 ##  Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
 ##  1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000  
 ##  Median :0.0000   Median :0.0000   Median :0.0000  
-##  Mean   :0.2528   Mean   :0.1355   Mean   :0.1562  
-##  3rd Qu.:1.0000   3rd Qu.:0.0000   3rd Qu.:0.0000  
+##  Mean   :0.2261   Mean   :0.1355   Mean   :0.2528  
+##  3rd Qu.:0.0000   3rd Qu.:0.0000   3rd Qu.:1.0000  
 ##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
 ## </code></pre>
 <pre class="r"><code># ---------------------------------------------
@@ -515,6 +515,8 @@ numeric_cols &lt;- sapply(merged_all, is.numeric)
 merged_all[, numeric_cols] &lt;- lapply(merged_all[, numeric_cols], function(x) {
   ifelse(is.na(x), mean(x, na.rm = TRUE), x)
 })
+
+saveRDS(merged_all, &#39;../data/merged_all.rds&#39;)
 
 # ---------------------------------------------
 # Step 3: Double-check for remaining missing values
@@ -538,13 +540,13 @@ colSums(is.na(merged_all))</code></pre>
 ##                                0                                0 
 ##                         globulin                              psa 
 ##                                0                                0 
-##                      coag_factor                   Hyperlipidemia 
+##                      coag_factor                     Hearing_Loss 
 ##                                0                                0 
-##                     Hypertension                     Osteoporosis 
+##                   Hyperlipidemia                     Hypertension 
 ##                                0                                0 
-##                   Sleep_Disorder                  Type_2_Diabetes 
+##                     Osteoporosis                  Type_2_Diabetes 
 ##                                0                                0 
-##                              UTI 
+##                         Urin_ret 
 ##                                0</code></pre>
 <pre class="r"><code># see merged_all for the merged output for Task 4: 
 # View(merged_all)</code></pre>

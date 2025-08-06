@@ -25,9 +25,9 @@ DATASET3_mapped <- DATASET3 %>%
     code == "DE119" ~ "Type_2_Diabetes",
     code == "DM819" ~ "Osteoporosis",
     code == "DI109" ~ "Hypertension",
-    code == "DR339" ~ "Sleep_Disorder",
+    code == "DR339" ~ "Urin_ret",
     code == "DE780" ~ "Hyperlipidemia",
-    code == "DH911" ~ "UTI",  # Confirm if this is really UTI
+    code == "DH911" ~ "Hearing_Loss",  # Confirm if this is really UTI
     TRUE ~ "Other"
   ))
 

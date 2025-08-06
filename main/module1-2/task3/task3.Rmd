@@ -57,6 +57,38 @@ plot(cutpoint.Youden)
 
 ```
 
+```{r}
+# Install if needed
+#install.packages("pROC")
+
+# Load package
+library(pROC)
+
+# Compute ROC curve
+roc_obj <- roc(response = merged_all$metastasis, predictor = merged_all$psa)
+
+# Plot ROC curve
+plot(roc_obj, col = "#1f78b4", main = "ROC Curve for PSA vs. Metastasis", print.auc = TRUE)
+
+# Get AUC
+auc(roc_obj)
+
+# Extract numeric cutoff from the result
+youden_cutoff <- cutpoint.Youden$Youden$Global$optimal.cutoff[[1]]
+
+# Confirm it's numeric
+print(youden_cutoff)  # Should be 23
+
+# Compute coordinates at that cutoff
+coords <- coords(roc_obj, x = youden_cutoff, input = "threshold", ret = c("specificity", "sensitivity"))
+
+# Add point to ROC plot
+points(1 - coords["specificity"], coords["sensitivity"], col = "red", pch = 19)
+
+text(1 - coords["specificity"], coords["sensitivity"], labels = paste0("Cutoff = ", youden_cutoff), pos = 3)
+
+```
+
 Using the Youden index method, we found the optimal PSA cutoff point to be around X ng/ml. This threshold maximizes the trade-off between sensitivity and specificity. However, while the Youden index is commonly used and easy to interpret, it may not always be the most clinically appropriate if false positives or false negatives have asymmetric costs.
 
 As an alternative, we explored the MaxEfficiency method (or another of your choice), which produced a different cutoff. The best method may depend on clinical priorities, such as minimizing missed metastasis cases versus avoiding unnecessary testing.

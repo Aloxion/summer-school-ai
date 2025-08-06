@@ -5,4 +5,56 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+load("../../module1/.RData")
+```
+
+```{r}
+# --- Task 2 ---
+
+# Load required library
+library(pROC)
+
+# Example predictors to include (adjust if needed):
+# Urin_ret, psa, age_pc_diag, albumin, lymphocyte, creatinine
+# Ensure these variables exist in your 'merged_all' data frame.
+
+model_multiple <- glm(
+  metastasis ~ Urin_ret + psa + age_at_prostate_cancer_diagnosis + albumin + lymphocyte + creatinine,
+  data = merged_all,
+  family = "binomial"
+)
+
+summary(model_multiple)
+
+# The exponentiated coefficients show the odds ratio
+exp(coef(model_multiple))
+
+# Predict probabilities
+merged_all$predicted_prob_mult <- predict(model_multiple, type = "response")
+
+# Classify using a 0.5 threshold
+merged_all$predicted_class_mult <- ifelse(merged_all$predicted_prob_mult >= 0.5, 1, 0)
+
+# Create a confusion matrix
+table(Predicted = merged_all$predicted_class_mult, Actual = merged_all$metastasis)
+
+# Calculate performance metrics
+TP <- sum(merged_all$predicted_class_mult == 1 & merged_all$metastasis == 1)
+TN <- sum(merged_all$predicted_class_mult == 0 & merged_all$metastasis == 0)
+FP <- sum(merged_all$predicted_class_mult == 1 & merged_all$metastasis == 0)
+FN <- sum(merged_all$predicted_class_mult == 0 & merged_all$metastasis == 1)
+
+accuracy_mult <- (TP + TN) / (TP + TN + FP + FN)
+sensitivity_mult <- TP / (TP + FN)
+specificity_mult <- TN / (TN + FP)
+
+cat("Accuracy:", round(accuracy_mult, 3), "\n")
+cat("Sensitivity:", round(sensitivity_mult, 3), "\n")
+cat("Specificity:", round(specificity_mult, 3), "\n")
+
+# ROC curve analysis
+roc_mult <- roc(merged_all$metastasis, merged_all$predicted_prob_mult)
+plot(roc_mult, main = "ROC Curve - Multiple Logistic Regression", col = "#1f78b4", print.auc = TRUE)
+
+saveRDS(model_multiple, 'model_multiple.rds')
 ```

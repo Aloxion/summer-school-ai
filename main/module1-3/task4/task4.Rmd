@@ -5,4 +5,55 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+load('../../module1/.RData')
 ```
+
+```{r}
+# Load required library
+library(caret)
+library(dplyr)
+
+# Convert the outcome variable to a factor
+merged_all$metastasis <- factor(merged_all$metastasis)
+
+# Set up the ten-fold cross-validation
+train.control <- trainControl(
+  method = "cv",  
+  number = 10,   
+  savePredictions = TRUE
+)
+
+set.seed(123) # Set a seed for reproducibility
+
+# Train the final model using cross-validation
+# Ensure the outcome is a factor
+final.model.cv <- train(
+  metastasis ~ Urin_ret + psa + age_at_prostate_cancer_diagnosis + albumin + lymphocyte + creatinine, 
+  data = merged_all,
+  method = "glm",
+  family = "binomial",
+  trControl = train.control
+)
+
+# Summarize the results of the cross-validation
+print(final.model.cv)
+
+# Inspect the results for each fold
+pred_fold <- final.model.cv$pred
+
+# Now the 'pred' and 'obs' columns will be factors, and the confusionMatrix
+# function should work as expected.
+confusionMatrix(data = pred_fold$pred, reference = pred_fold$obs)
+
+# You can also re-run the accuracy calculation per fold:
+pred_fold$equal <- ifelse(pred_fold$pred == pred_fold$obs, 1, 0)
+eachfold_accuracy <- pred_fold %>%
+  group_by(Resample) %>%
+  summarise(Accuracy = mean(equal))
+
+print(eachfold_accuracy)
+
+# Evaluate the model's predictive performance on the cross-validated results
+confusionMatrix(data = as.factor(pred_fold$pred), reference = as.factor(pred_fold$obs))
+```
+

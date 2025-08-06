@@ -5,4 +5,35 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+load('../../module1/.RData')
 ```
+
+```{r}
+# Load required library
+# install.packages("MASS")
+model_multiple = readRDS('../task2/model_multiple.rds')
+library(MASS)
+
+# Use stepAIC to select the best variables
+step.model <- stepAIC(model_multiple, direction = "both", trace = FALSE)
+summary(step.model)
+
+# Calculate predicted probabilities from the improved model
+probabilities <- predict(step.model, new_data = merged_all, type = "response")
+
+# Create a data frame with observed and predicted classes for the confusion matrix
+observed.classes <- as.factor(merged_all$metastasis)
+predicted.classes <- as.factor(ifelse(probabilities >= 0.5, 1, 0))
+
+pred.results <- data.frame(
+  observed.classes,
+  probabilities,
+  predicted.classes
+)
+
+# Use the 'caret' package to get a detailed confusion matrix
+# install.packages("caret")
+library(caret)
+confusionMatrix(data = predicted.classes, reference = observed.classes)
+```
+

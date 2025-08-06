@@ -51,6 +51,8 @@ merged_all[, numeric_cols] <- lapply(merged_all[, numeric_cols], function(x) {
   ifelse(is.na(x), mean(x, na.rm = TRUE), x)
 })
 
+saveRDS(merged_all, '../data/merged_all.rds')
+save.image(file = '../.RData')
 # ---------------------------------------------
 # Step 3: Double-check for remaining missing values
 # ---------------------------------------------
