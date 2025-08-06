@@ -1,0 +1,55 @@
+---
+title: "Task2"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# --- Task 2 ---
+### Discuss the results
+
+---
+
+#### **Question 1:**
+
+> When looking at the overall results for both tests (using PSA cutoff of 20 or 100 ng/ml), what can you conclude when comparing the results obtained for sensitivity and specificity?
+
+* **PSA ≥ 20 ng/ml:**
+
+  * Sensitivity: **High (≈ 0.60)** — Good at detecting actual metastasis.
+  * Specificity: **Lower (≈ 0.67)** — Some false positives.
+
+* **PSA ≥ 100 ng/ml:**
+
+  * Sensitivity: **Low (≈ 0.33)** — Misses many metastasis cases (high false negatives).
+  * Specificity: **High (≈ 0.87)** — Very few false positives.
+
+**Conclusion:**
+
+* There's a trade-off:
+
+  * PSA ≥ 20 is better for **ruling out metastasis** (good sensitivity).
+  * PSA ≥ 100 is better for **confirming metastasis** (good specificity).
+* PSA ≥ 20 cutoff is **more inclusive**, catching more metastatic cases (but with more false alarms).
+* PSA ≥ 100 cutoff is **more conservative**, catching only the most severe (but missing many).
+
+---
+
+#### **Question 2:**
+
+> At the moment, what would you say is the best cutoff to predict PC-related metastasis (20 or 100 ng/ml)? What would be the advantages for the healthcare system when using each of the tests?
+
+* **Best cutoff for early detection**: **PSA ≥ 20 ng/ml**
+
+  * Captures more cases → avoids undertreatment.
+  * Useful in early-stage decision-making and triaging.
+  * Advantage: **Reduces risk of missing metastasis** → earlier interventions.
+
+* **Best cutoff for minimizing unnecessary follow-ups**: **PSA ≥ 100 ng/ml**
+
+  * More confident diagnosis → useful when deciding on aggressive treatment.
+  * Advantage: **Avoids overtreatment**, fewer imaging scans.
+
+---

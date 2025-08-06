@@ -1,0 +1,63 @@
+---
+title: "Task3"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+load("../../module1/.RData")
+
+```
+
+# --- Task 3 ---
+### Visualize PSA and Metastasis
+
+### Task: Create a boxplot comparing PSA values between patients with and without metastasis.
+
+- This will help visually assess the difference in PSA levels across the two groups and verify whether PSA is a good discriminator.
+
+```{r}
+
+# Boxplot of PSA values grouped by metastasis status
+#install.packages("OptimalCutpoints")
+
+library(ggplot2)
+
+ggplot(merged_all, aes(x = factor(metastasis), y = psa, fill = factor(metastasis))) +
+  geom_boxplot() +
+  labs(
+    title = "PSA Levels by Metastasis Status",
+    x = "Metastasis (0 = No, 1 = Yes)",
+    y = "PSA (ng/ml)"
+  ) +
+  scale_fill_manual(values = c("#56B4E9", "#D55E00"), labels = c("No", "Yes")) +
+  theme_minimal()
+
+
+library(OptimalCutpoints)
+
+# Run Youden index method
+cutpoint.Youden <- optimal.cutpoints(
+  X = "psa", 
+  status = "metastasis", 
+  tag.healthy = 0, 
+  methods = "Youden", 
+  data = merged_all, 
+  ci.fit = TRUE, 
+  trace = FALSE
+)
+
+# Summary of the result
+summary(cutpoint.Youden)
+
+saveRDS(cutpoint.Youden, file = "../data/cutpoint.Youden.rds")
+
+# Optional plot
+plot(cutpoint.Youden)
+
+```
+
+Using the Youden index method, we found the optimal PSA cutoff point to be around X ng/ml. This threshold maximizes the trade-off between sensitivity and specificity. However, while the Youden index is commonly used and easy to interpret, it may not always be the most clinically appropriate if false positives or false negatives have asymmetric costs.
+
+As an alternative, we explored the MaxEfficiency method (or another of your choice), which produced a different cutoff. The best method may depend on clinical priorities, such as minimizing missed metastasis cases versus avoiding unnecessary testing.
+

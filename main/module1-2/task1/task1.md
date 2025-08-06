@@ -1,0 +1,91 @@
+Task 1
+================
+
+``` r
+load("../../module1/.RData")
+# Create test result columns for each PSA cutoff
+merged_all$psa_test_20 <- ifelse(merged_all$psa >= 20, 1, 0)
+merged_all$psa_test_100 <- ifelse(merged_all$psa >= 100, 1, 0)
+
+# Function to compute confusion matrix metrics
+compute_metrics <- function(test_result, actual) {
+  TP <- sum(test_result == 1 & actual == 1)
+  TN <- sum(test_result == 0 & actual == 0)
+  FP <- sum(test_result == 1 & actual == 0)
+  FN <- sum(test_result == 0 & actual == 1)
+  
+  sensitivity <- TP / (TP + FN)
+  specificity <- TN / (TN + FP)
+  accuracy <- (TP + TN) / (TP + TN + FP + FN)
+  
+  return(data.frame(Sensitivity = sensitivity,
+                    Specificity = specificity,
+                    Accuracy = accuracy,
+                    TP = TP, TN = TN, FP = FP, FN = FN))
+}
+
+# Apply function to both cutoffs
+metrics_20 <- compute_metrics(merged_all$psa_test_20, merged_all$metastasis)
+metrics_100 <- compute_metrics(merged_all$psa_test_100, merged_all$metastasis)
+
+# Print results
+print("Performance metrics for PSA ≥ 20 ng/mL")
+```
+
+    ## [1] "Performance metrics for PSA ≥ 20 ng/mL"
+
+``` r
+print(metrics_20)
+```
+
+    ##   Sensitivity Specificity  Accuracy  TP  TN  FP  FN
+    ## 1   0.5985748   0.6653117 0.6410699 252 491 247 169
+
+``` r
+print("Performance metrics for PSA ≥ 100 ng/mL")
+```
+
+    ## [1] "Performance metrics for PSA ≥ 100 ng/mL"
+
+``` r
+print(metrics_100)
+```
+
+    ##   Sensitivity Specificity  Accuracy  TP  TN FP  FN
+    ## 1    0.327791   0.8658537 0.6704055 138 639 99 283
+
+``` r
+# Create a data frame comparing metrics for PSA ≥ 20 and PSA ≥ 100
+comparison_table <- data.frame(
+  Metric = c("Sensitivity", "Specificity", "Accuracy"),
+  PSA_20_ng_ml = c(
+    round(252 / (252 + 169), 4),
+    round(491 / (491 + 247), 4),
+    round((252 + 491) / (252 + 491 + 247 + 169), 4)
+  ),
+  PSA_100_ng_ml = c(
+    round(138 / (138 + 283), 4),
+    round(639 / (639 + 99), 4),
+    round((138 + 639) / (138 + 639 + 99 + 283), 4)
+  )
+)
+
+# Print the table
+print(comparison_table, row.names = FALSE)
+```
+
+    ##       Metric PSA_20_ng_ml PSA_100_ng_ml
+    ##  Sensitivity       0.5986        0.3278
+    ##  Specificity       0.6653        0.8659
+    ##     Accuracy       0.6411        0.6704
+
+What’s Happening Here? psa_test_20 and psa_test_100 classify the test as
+positive or negative based on the cutoff.
+
+The function compute_metrics calculates:
+
+TP (true positives): Metastasis = 1, PSA test = 1 TN (true negatives):
+Metastasis = 0, PSA test = 0 FP (false positives): Metastasis = 0, PSA
+test = 1 FN (false negatives): Metastasis = 1, PSA test = 0
+
+Then derives sensitivity, specificity, and accuracy.
