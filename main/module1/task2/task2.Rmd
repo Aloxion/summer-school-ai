@@ -15,12 +15,12 @@ library(lubridate)
 DATASET2 <- read_csv("../../DATASET2.csv")
 #View(DATASET2)
 
-# Check how many NA values exist per variable
+# Check how many NA values exist per variable 
 DATASET2 %>% summarise_all(~sum(is.na(.)))
 
 
-install.packages("VIM")  # Only once
-install.packages("DEoptimR")
+#install.packages("VIM")  # Only once
+#install.packages("DEoptimR")
 
 library(VIM)
 

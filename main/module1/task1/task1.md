@@ -1,7 +1,7 @@
 task1
 ================
 Anton Sandbye
-2025-08-04
+2025-08-06
 
 ``` r
 mydata <- read.csv("../../DATASET1.csv")
@@ -120,9 +120,10 @@ Age Prostate Cancer
 age_metastasis <- data %>%
   filter(metastasis == 1) %>%
   summarise(
-    Mean = mean(age_at_metastasis_diagnosis),
-    SD = sd(age_at_metastasis_diagnosis)
+    Mean = mean(age_at_metastasis_diagnosis, na.rm = TRUE),
+    SD = sd(age_at_metastasis_diagnosis, na.rm = TRUE)
   )
+
 
 print_table(age_metastasis, "Age Metastatis diagnosed")
 ```
@@ -256,3 +257,13 @@ print_table(summary_df, "Final Results")
 | Single/Divorced/Widow (%)                | 30.28%           |
 
 Final Results
+
+``` r
+ncol(data)
+```
+
+    ## [1] 9
+
+``` r
+write_csv(data, "task1_result.csv")
+```
