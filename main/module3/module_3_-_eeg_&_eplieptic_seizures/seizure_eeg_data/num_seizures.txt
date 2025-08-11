@@ -1,0 +1,5 @@
+﻿Approximate seizure count per file
+01  60
+02  38
+03   8
+04  na
